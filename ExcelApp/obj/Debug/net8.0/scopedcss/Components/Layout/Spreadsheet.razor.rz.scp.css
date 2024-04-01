@@ -1,0 +1,75 @@
+*[b-g6khqcphjt] {
+    box-sizing: border-box;
+    font-size: 12px;
+}
+
+.spreadsheet-container[b-g6khqcphjt] {
+    overflow-x: auto; /* Allows horizontal scrolling */
+    overflow-y: auto; /* Prevents vertical scrolling if not needed */
+    width: 100%; /* Set to the width of the container, can be adjusted as necessary */
+    max-height: 100vh; /* Adjust based on your needs */
+    display: block;
+}
+
+.header-row[b-g6khqcphjt] {
+    display: grid;
+    grid-auto-flow: column; /* Places items in a row without wrapping */
+    grid-auto-columns: 180px; /* Sets the width for each column */
+}
+
+
+.row[b-g6khqcphjt] {
+    display: grid;
+    grid-auto-flow: column; /* Places items in a row without wrapping */
+    grid-auto-columns: 180px; /* Sets the width for each column */
+    margin-left: 0.2px; /*Weird hack*/
+}
+
+.row-header[b-g6khqcphjt] {
+    padding: 0;
+    text-align: center;
+    border: 1px solid #d4d4d4;
+    padding: 4px;
+}
+
+
+.cell[b-g6khqcphjt] {
+    display: flex;
+    border: 1px solid #d4d4d4;
+    padding: 4px;
+    height: 24px;
+    align-items: center; /* Vertical centering */
+    justify-content: center; /* Horizontal centering */
+}
+
+
+
+.column-header[b-g6khqcphjt] {
+    position: relative;
+}
+
+.resize-handle[b-g6khqcphjt] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5px; /* Width of the draggable area */
+    height: 100%;
+    cursor: col-resize;
+    z-index: 10;
+}
+
+
+
+.cell input[b-g6khqcphjt] {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    caret-color: black;
+}
+
+    .cell input:focus[b-g6khqcphjt] {
+        outline: none;
+
+    }

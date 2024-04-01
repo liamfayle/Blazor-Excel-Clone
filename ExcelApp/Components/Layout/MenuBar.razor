@@ -1,0 +1,21 @@
+﻿<div class="menu-bar">
+    <button @onclick="Load">Load</button>
+    <button @onclick="Save">Save</button>
+    <input type="text" @bind="functionInput" placeholder="Enter function or value" />
+</div>
+
+@code {
+    public string functionInput { get; set; } = string.Empty;
+
+    private void Load()
+    {
+        // Logic to load the spreadsheet data
+    }
+
+    private void Save()
+    {
+        // Logic to save the spreadsheet data
+    }
+
+    // Additional logic for interacting with the grid and function editor
+}

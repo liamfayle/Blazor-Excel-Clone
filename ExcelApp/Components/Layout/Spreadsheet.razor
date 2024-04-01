@@ -1,0 +1,49 @@
+﻿@using System.Collections.Generic
+@inject IJSRuntime JSRuntime
+
+<div class="spreadsheet-container">
+    <div class="spreadsheet">
+        @* Generate column headers *@
+        <div class="header-row">
+            @for (int col = 0; col < numCols; col++)
+            {
+                if (col == 0)
+                {
+                    <div class="cell column-header corner-cell">&nbsp;</div>
+                }
+                else
+                {
+                    <div class="cell column-header">
+                        @((char)('A' + col-1))
+                        <div class="resize-handle"></div>
+                    </div>
+                }
+            }
+        </div>
+
+        @* Generate rows, each with a row header *@
+        @for (int row = 1; row <= numRows; row++)
+        {
+            <div class="row">
+                <div class="cell row-header">@row</div>
+                @for (int col = 0; col < numCols-1; col++)
+                {
+                    <div class="cell content"><input type="text" data-x="@col" data-y="@(row-1)" /></div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<script src="js/cell.js"></script>
+
+@code {
+    [Parameter]
+    public int numRows { get; set; } = 1001;
+
+    [Parameter]
+    public int numCols { get; set; } = 27;
+
+}
+
+

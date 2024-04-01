@@ -1,0 +1,13 @@
+﻿@page "/"
+@using ExcelApp.Components.Layout
+
+
+
+<Spreadsheet numRows="@numRows" numCols="@numCols" />
+
+
+
+@code {
+    private int numRows = 1001; // default on google sheets + 1 for letters bar
+    private int numCols = 27; // 26 letters a-z + 1 for index bar
+}

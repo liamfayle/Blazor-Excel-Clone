@@ -1,0 +1,45 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Liam\\source\\repos\\ExcelApp\\ExcelApp\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\ExcelApp.bundle.scp.css",
+      "PackagePath": "staticwebassets\\ExcelApp.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\Liam\\source\\repos\\ExcelApp\\ExcelApp\\wwwroot\\app.css",
+      "PackagePath": "staticwebassets\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\Liam\\source\\repos\\ExcelApp\\ExcelApp\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\Liam\\source\\repos\\ExcelApp\\ExcelApp\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\Liam\\source\\repos\\ExcelApp\\ExcelApp\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "C:\\Users\\Liam\\source\\repos\\ExcelApp\\ExcelApp\\wwwroot\\js\\cell.js",
+      "PackagePath": "staticwebassets\\js\\cell.js"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.ExcelApp.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.ExcelApp.props",
+      "PackagePath": "build\\ExcelApp.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.ExcelApp.props",
+      "PackagePath": "buildMultiTargeting\\ExcelApp.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.ExcelApp.props",
+      "PackagePath": "buildTransitive\\ExcelApp.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
