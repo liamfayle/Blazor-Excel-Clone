@@ -1,5 +1,10 @@
 ﻿@using System.Collections.Generic
+@using System;
+@using System.Globalization;
+@using System.Text.RegularExpressions;
+@using System.Threading.Tasks;
 @inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
 
 <div class="spreadsheet-container">
     <div class="spreadsheet">
@@ -28,21 +33,361 @@
                 <div class="cell row-header">@row</div>
                 @for (int col = 0; col < numCols-1; col++)
                 {
-                    <div class="cell content"><input type="text" data-x="@col" data-y="@(row-1)" /></div>
+                    int x = col; // Create a local copy of col
+                    int y = row - 1; // Create a local copy of row, adjusted if necessary
+                    <div class="cell content"><input @onkeydown="e => HandleEnterPressed(e, x, y)" type="text" data-x="@col" data-y="@(row-1)" /></div>
                 }
             </div>
         }
+
+       
     </div>
 </div>
 
-<script src="js/cell.js"></script>
+<script src="js/helpers.js"></script>
 
 @code {
+     /* SECTION 1
+     *
+     * Code for handling rows and columns and making sheet bigger / smaller
+    *
+    */
     [Parameter]
     public int numRows { get; set; } = 1001;
 
     [Parameter]
     public int numCols { get; set; } = 27;
+
+
+    /* SECTION 2
+    * 
+    * Code for handling all spreadsheet calculations
+    * 
+    */
+    private string inputValue = ""; //input value place holder
+
+    //function for handling enter key pressed
+    private void HandleEnterPressed(KeyboardEventArgs e, int x, int y)
+    {
+        if (e.Key == "Enter")
+        {
+            ProcessInput(x, y);
+        }
+    }
+
+    //Initial function to handle logic of processing input
+    private async void ProcessInput(int x, int y)
+    {
+        inputValue = await GetInputValueAsync(x, y);
+        if (inputValue.StartsWith("=") && inputValue.Length > 1)
+        {
+            try
+            {
+                var stringProcessor = new StringProcessor(GetInputValueAsync);
+                string toProcess = await stringProcessor.GetStringToProcess(inputValue.Substring(1));
+                double result = EvaluateExpression(toProcess);
+                await SetInputValueAsync(x, y, result.ToString("0.##"));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing the expression: {ex.Message}");
+                inputValue = "Error";
+            }
+        } else
+        {
+            await SetInputValueAsync(x, y, inputValue);
+        }
+    }
+
+
+    //Evaluate expression parsing function
+    private double EvaluateExpression(string expression)
+    {
+        var evaluator = new ExpressionEvaluator();
+        double result = evaluator.Evaluate(expression);
+        return result;
+    }
+
+
+
+
+
+    /* SECTION 3
+    * 
+    * Custom implementation of evaluate method to convert string expression into a math value
+    * 
+    */
+    public class ExpressionEvaluator
+    {
+        // Evaluates the arithmetic expression string and returns the result as a double
+        public double Evaluate(string expression)
+        {
+            // Convert the expression string into a list of tokens (numbers and operators)
+            var tokens = Tokenize(expression);
+            // Convert the list of tokens into Reverse Polish Notation (RPN) for evaluation
+            var rpn = ConvertToRPN(tokens);
+            // Evaluate the RPN expression and return the result
+            return EvaluateRPN(rpn);
+        }
+
+        // Tokenizes the expression string into numbers and operators
+        private List<string> Tokenize(string expression)
+        {
+            List<string> tokens = new List<string>();
+            string number = "";
+
+            // Iterate over each character in the expression
+            foreach (char c in expression)
+            {
+                // If the character is part of a number (including decimal point), build the number string
+                if (char.IsDigit(c) || c == '.')
+                {
+                    number += c;
+                }
+                else
+                {
+                    // If a number is built, add it to the tokens list and reset the number string
+                    if (!string.IsNullOrEmpty(number))
+                    {
+                        tokens.Add(number);
+                        number = "";
+                    }
+
+                    // Add the operator to the tokens list (ignore whitespace)
+                    if (!char.IsWhiteSpace(c))
+                    {
+                        tokens.Add(c.ToString());
+                    }
+                }
+            }
+
+            // Add the last number to the tokens list if it exists
+            if (!string.IsNullOrEmpty(number))
+            {
+                tokens.Add(number);
+            }
+
+            return tokens;
+        }
+
+        // Converts the list of tokens into Reverse Polish Notation (RPN) using the Shunting Yard algorithm
+        private Queue<string> ConvertToRPN(List<string> tokens)
+        {
+            Queue<string> outputQueue = new Queue<string>();
+            Stack<string> operatorStack = new Stack<string>();
+
+            foreach (string token in tokens)
+            {
+                // If the token is a number, enqueue it to the output queue
+                if (double.TryParse(token, NumberStyles.Any, CultureInfo.InvariantCulture, out double number))
+                {
+                    outputQueue.Enqueue(token);
+                }
+                else if ("+-*/".Contains(token))
+                {
+                    // If the token is an operator, pop operators from the stack to the output queue
+                    // until an operator with lower precedence is found
+                    while (operatorStack.Count > 0 && GetPrecedence(operatorStack.Peek()) >= GetPrecedence(token))
+                    {
+                        outputQueue.Enqueue(operatorStack.Pop());
+                    }
+                    operatorStack.Push(token);
+                }
+                else if (token == "(")
+                {
+                    // If the token is a left parenthesis, push it onto the stack
+                    operatorStack.Push(token);
+                }
+                else if (token == ")")
+                {
+                    // If the token is a right parenthesis, pop from the stack to the output queue
+                    // until a left parenthesis is found
+                    while (operatorStack.Count > 0 && operatorStack.Peek() != "(")
+                    {
+                        outputQueue.Enqueue(operatorStack.Pop());
+                    }
+                    operatorStack.Pop(); // Pop the left parenthesis
+                }
+            }
+
+            // Pop all remaining operators from the stack to the output queue
+            while (operatorStack.Count > 0)
+            {
+                outputQueue.Enqueue(operatorStack.Pop());
+            }
+
+            return outputQueue;
+        }
+
+        // Determines the precedence of operators
+        private int GetPrecedence(string operatorToken)
+        {
+            if (operatorToken == "+" || operatorToken == "-")
+                return 1; // + and - have lower precedence
+            if (operatorToken == "*" || operatorToken == "/")
+                return 2; // * and / have higher precedence
+            return 0; // default precedence for non-operators
+        }
+
+        // Evaluates the Reverse Polish Notation (RPN) expression and returns the result
+        private double EvaluateRPN(Queue<string> rpn)
+        {
+            Stack<double> stack = new Stack<double>();
+
+            // Process each token in the RPN expression
+            while (rpn.Count > 0)
+            {
+                string token = rpn.Dequeue();
+
+                // If the token is a number, push it onto the stack
+                if (double.TryParse(token, NumberStyles.Any, CultureInfo.InvariantCulture, out double number))
+                {
+                    stack.Push(number);
+                }
+                else
+                {
+                    // If the token is an operator, pop two numbers from the stack,
+                    // perform the operation, and push the result back onto the stack
+                    double right = stack.Pop();
+                    double left = stack.Pop();
+
+                    switch (token)
+                    {
+                        case "+": stack.Push(left + right); break;
+                        case "-": stack.Push(left - right); break;
+                        case "*": stack.Push(left * right); break;
+                        case "/": stack.Push(left / right); break;
+                    }
+                }
+            }
+
+            // The final result is the remaining item in the stack
+            return stack.Pop();
+        }
+    }
+
+
+    /* SECTION 4
+    * 
+    * Calss to js helper functions
+    * 
+    */
+
+    //getter for input val
+    private async Task<string> GetInputValueAsync(int x, int y)
+    {
+        string dataX = x.ToString();
+        string dataY = y.ToString();
+        string value = await JSRuntime.InvokeAsync<string>("getInputValueByDataAttributes", dataX, dataY);
+        return value;
+    }
+
+    //setter for input val
+    private async Task SetInputValueAsync(int x, int y, string value)
+    {
+        string dataX = x.ToString();
+        string dataY = y.ToString();
+        await JSRuntime.InvokeAsync<string>("setInputValueByDataAttributes", dataX, dataY, value);
+    }
+
+
+
+    /* SECTION 5
+     * 
+     * String processing function to extract excel ranges, functions, and cell references
+     * 
+     */
+    public class StringProcessor
+    {
+        private Func<int, int, Task<string>> _getInputValueAsync;
+
+        public StringProcessor(Func<int, int, Task<string>> getInputValueAsync)
+        {
+            _getInputValueAsync = getInputValueAsync;
+        }
+
+        // Convert an Excel-style cell reference to numerical coordinates.
+        private (int x, int y) ConvertExcelToXY(string excelRef)
+        {
+            // Regex to separate the letter(s) and number from the Excel cell reference
+            var match = Regex.Match(excelRef, @"^([A-Za-z]+)(\d+)$");
+            if (match.Success)
+            {
+                // Convert column letter(s) to zero-based column index
+                int x = Convert.ToInt32(match.Groups[1].Value.ToLower()[0]) - 'a';
+                // Convert row number to zero-based row index
+                int y = int.Parse(match.Groups[2].Value) - 1;
+                return (x, y);
+            }
+
+            // Return an invalid index if the parsing fails
+            return (-1, -1);
+        }
+
+        // Calculate the sum or average for a range of cells specified by their coordinates
+        private async Task<double> LoopThroughRange(int x1, int y1, int x2, int y2, string func)
+        {
+            // Determine the start and end points for both columns and rows
+            int startX = Math.Min(x1, x2);
+            int endX = Math.Max(x1, x2);
+            int startY = Math.Min(y1, y2);
+            int endY = Math.Max(y1, y2);
+
+            // Initialize total and count for average calculation
+            double total = 0;
+            int count = 0;
+
+            // Iterate through the specified range to calculate total and count
+            for (int x = startX; x <= endX; x++)
+            {
+                for (int y = startY; y <= endY; y++)
+                {
+                    string valueStr = await _getInputValueAsync(x, y);
+                    if (double.TryParse(valueStr, out double value))
+                    {
+                        total += value;
+                        count++;
+                    }
+                }
+            }
+
+            // Return the appropriate calculation based on the function
+            return func.ToLower() == "sum" ? total : (count > 0 ? total / count : 0);
+        }
+
+        // Main method to process the input string and replace cell references and functions with values
+        public async Task<string> GetStringToProcess(string input)
+        {
+            // Convert the input string to lower case for consistent processing
+            string processedString = input.ToLower();
+
+            // Use regex to find individual cell references and function expressions in the string
+            var cellRefs = Regex.Matches(processedString, @"(?<![:A-Za-z]\d+)(?<![:A-Za-z])[A-Za-z]\d+\b(?![:A-Za-z]\d+)");
+            var functionRanges = Regex.Matches(processedString, @"(sum|average)\(([A-Za-z]\d+:[A-Za-z]\d+)\)", RegexOptions.IgnoreCase);
+
+            // Process each found function and replace it with the calculated value
+            foreach (Match func in functionRanges)
+            {
+                string[] range = func.Groups[2].Value.Split(':');
+                var (x1, y1) = ConvertExcelToXY(range[0]);
+                var (x2, y2) = ConvertExcelToXY(range[1]);
+
+                double value = await LoopThroughRange(x1, y1, x2, y2, func.Groups[1].Value);
+                processedString = processedString.Replace(func.Value, value.ToString());
+            }
+
+            // Process each found individual cell reference and replace it with the actual value
+            foreach (Match cell in cellRefs)
+            {
+                var (x, y) = ConvertExcelToXY(cell.Value);
+                string val = await _getInputValueAsync(x, y);
+                processedString = processedString.Replace(cell.Value, val ?? "");
+            }
+
+            // Return the string after all replacements are made
+            return processedString;
+        }
+    }
 
 }
 

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ExcelApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+613f4236c08e5127c17c294d1dff0b9c9fb28225")]
 [assembly: System.Reflection.AssemblyProductAttribute("ExcelApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ExcelApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -28,3 +28,4 @@ C:\Users\Liam\source\repos\ExcelApp\ExcelApp\obj\Debug\net8.0\ExcelApp.genruntim
 C:\Users\Liam\source\repos\ExcelApp\ExcelApp\obj\Debug\net8.0\ref\ExcelApp.dll
 C:\Users\Liam\source\repos\ExcelApp\ExcelApp\obj\Debug\net8.0\scopedcss\Components\Layout\MenuBar.razor.rz.scp.css
 C:\Users\Liam\source\repos\ExcelApp\ExcelApp\obj\Debug\net8.0\scopedcss\Components\Layout\Spreadsheet.razor.rz.scp.css
+C:\Users\Liam\source\repos\ExcelApp\ExcelApp\obj\Debug\net8.0\ExcelApp.sourcelink.json
